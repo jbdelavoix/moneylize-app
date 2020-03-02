@@ -2,56 +2,144 @@ const {
   app,
   dialog,
   ipcMain,
+  session,
   BrowserWindow,
-  Menu
+  Menu,
 } = require("electron")
-
 const fs = require("fs")
+const path = require("path")
 
 
-let mainWindow = null
+function addMenu(platform) {
+  let menu = Menu.buildFromTemplate([{
+      label: "Home",
+      submenu: [{
+          role: "about"
+        },
+        {
+          type: "separator"
+        },
+        {
+          label: "Services",
+          submenu: []
+        },
+        {
+          type: "separator"
+        },
+        {
+          role: "hide"
+        },
+        {
+          role: "hideOthers"
+        },
+        {
+          role: "unhide"
+        },
+        {
+          type: "separator"
+        },
+        {
+          role: "quit"
+        },
+      ]
+    },
+    {
+      label: "Edit",
+      submenu: [{
+          role: "undo"
+        },
+        {
+          role: "redo"
+        },
+        {
+          type: "separator"
+        },
+        {
+          role: "cut"
+        },
+        {
+          role: "copy"
+        },
+        {
+          role: "paste"
+        }
+      ]
+    }, {
+      label: "View",
+      submenu: [{
+          role: "reload"
+        },
+        {
+          role: "toggledevtools"
+        },
+        {
+          type: "separator"
+        },
+        {
+          role: "resetzoom"
+        },
+        {
+          role: "zoomin"
+        },
+        {
+          role: "zoomout"
+        },
+        {
+          type: "separator"
+        },
+        {
+          role: "togglefullscreen"
+        }
+      ]
+    }, {
+      role: "window",
+      submenu: [{
+          role: "minimize"
+        },
+        {
+          role: "close"
+        }
+      ]
+    }, {
+      role: "help",
+      submenu: [{
+        label: "Learn More"
+      }]
+    }
+  ])
 
-app.on("window-all-closed", function () {
-  if (process.platform != "darwin")
-    app.quit()
-  app.quit()
-})
+  if (platform == "darwin") {
+    Menu.setApplicationMenu(menu)
+  } else {
+    Menu.setApplicationMenu(null)
+  }
+}
 
-let template = [{
-    label: "Home",
-    submenu: [{
-        role: "about"
-      },
-      {
-        type: "separator"
-      },
-      {
-        label: "Services",
-        submenu: []
-      },
-      {
-        type: "separator"
-      },
-      {
-        role: "hide"
-      },
-      {
-        role: "hideOthers"
-      },
-      {
-        role: "unhide"
-      },
-      {
-        type: "separator"
-      },
-      {
-        role: "quit"
-      },
-    ]
-  },
-  {
-    label: "Edit",
-    submenu: [{
+
+function createWindow() {
+
+  // Create the browser window
+  mainWindow = new BrowserWindow({
+    width: 1600,
+    height: 900,
+    titleBarStyle: "hiddenInset",
+    icon: path.join(__dirname, "/build/icons/icon.png"),
+    webPreferences: {
+      nodeIntegration: true,
+      preload: path.join(__dirname, "preload.js")
+    },
+    frame: false
+  })
+
+  // Open the devtools
+  // mainWindow.openDevTools()
+
+  // Load the app
+  mainWindow.loadURL("https://moneylize.com")
+
+  // On ipcEvent...
+  ipcMain.on("contextmenu:open", function (event, x, y) {
+    let contextmenu = Menu.buildFromTemplate([{
         role: "undo"
       },
       {
@@ -68,70 +156,31 @@ let template = [{
       },
       {
         role: "paste"
-      }
-    ]
-  }, {
-    label: "View",
-    submenu: [{
-        role: "reload"
-      },
-      {
-        role: "toggledevtools"
       },
       {
         type: "separator"
       },
       {
-        role: "resetzoom"
-      },
-      {
-        role: "zoomin"
-      },
-      {
-        role: "zoomout"
-      },
-      {
-        type: "separator"
-      },
-      {
-        role: "togglefullscreen"
+        label: "Advanced",
+        submenu: [{
+            role: "reload"
+          },
+          {
+            role: "toggledevtools"
+          },
+        ]
       }
-    ]
-  }, {
-    role: "window",
-    submenu: [{
-        role: "minimize"
-      },
-      {
-        role: "close"
-      }
-    ]
-  }, {
-    role: "help",
-    submenu: [{
-      label: "Learn More"
-    }]
-  }
-]
-
-menu = Menu.buildFromTemplate(template)
-
-function createWindow() {
-
-  mainWindow = new BrowserWindow({
-    width: 1600,
-    height: 900,
-    titleBarStyle: "hiddenInset",
-    webPreferences: {
-      nodeIntegration: true
-    },
-    frame: false
+    ])
+    contextmenu.popup({
+      window: mainWindow,
+      x,
+      y
+    })
   })
 
-  mainWindow.loadURL("https://moneylize.com")
-
   ipcMain.on("file:open", function (event) {
-    dialog.showOpenDialog((filenames) => {
+    dialog.showOpenDialog(mainWindow).then(result => {
+      let filenames = result.filePaths
       if (!filenames || !filenames.length)
         return event.sender.send("file:open-no-filename")
       var filepath = filenames[0]
@@ -159,7 +208,8 @@ function createWindow() {
       if (exists) save(file.filepath)
       else dialog.showSaveDialog({
         defaultPath: "*/" + file.filename
-      }, (filepath) => {
+      }).then((result) => {
+        let filepath = result.filePath
         if (!filepath)
           return event.sender.send("file:save-error", filepath)
         if (!filepath.endsWith(".mnyl")) filepath = filepath + ".mnyl"
@@ -184,20 +234,39 @@ function createWindow() {
     mainWindow.close()
   })
 
-  if (process.platform == "darwin")
+  if (process.platform == "darwin") {
     app.on("activate-with-no-open-windows", function () {
       mainWindow.show()
     })
+  }
 
-  Menu.setApplicationMenu(menu)
-
+  // Emitted when the window is closed.
   mainWindow.on("close", function () {
+    // Dereference the window object, usually you would store windows
+    // in an array if your app supports multi windows, this is the time
+    // when you should delete the corresponding element.
     if (process.platform != "darwin") {
       mainWindow = null
     } else {
-      mainWindow = null
+      mainWindow.hide()
     }
   })
 }
 
+
+// Keep a global reference of the window object, if you don"t, the window will
+// be closed automatically when the javascript object is GCed.
+let mainWindow = null
+
+// Add menu
+addMenu(process.platform)
+
+// Quit when all windows are closed.
+app.on("window-all-closed", function () {
+  if (process.platform != "darwin")
+    app.quit()
+})
+
+// This method will be called when Electron has done everything
+// initialization and ready for creating browser windows.
 app.on("ready", createWindow)
