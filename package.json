@@ -1,7 +1,7 @@
 {
   "name": "moneylize-app",
   "productName": "Moneylize",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A desktop application for Moneylize",
   "author": "jbaptistetrb <jbaptistetrb@users.noreply.github.com> (https://github.com/jbaptistetrb)",
   "homepage": "https://github.com/jbaptistetrb/moneylize-app",
@@ -19,7 +19,7 @@
     "artifactName": "${name}-${version}-${os}.${ext}",
     "files": [
       "**/*",
-      "build/icon.*"
+      "build/**/*"
     ],
     "appId": "jbaptistetrb.moneylize-app",
     "mac": {

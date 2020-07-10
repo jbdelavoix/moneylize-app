@@ -123,7 +123,7 @@ function createWindow() {
     width: 1600,
     height: 900,
     titleBarStyle: "hiddenInset",
-    icon: path.join(__dirname, "/build/icons/icon.png"),
+    icon: path.join(__dirname, "../build/icons/icon.png"),
     webPreferences: {
       nodeIntegration: true,
       preload: path.join(__dirname, "preload.js")
@@ -263,8 +263,7 @@ addMenu(process.platform)
 
 // Quit when all windows are closed.
 app.on("window-all-closed", function () {
-  if (process.platform != "darwin")
-    app.quit()
+  app.quit()
 })
 
 // This method will be called when Electron has done everything
