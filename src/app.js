@@ -130,10 +130,7 @@ function createWindow() {
     },
     frame: false
   })
-
-  // Open the devtools
-  // mainWindow.openDevTools()
-
+  
   // Load the app
   mainWindow.loadURL("https://moneylize.com")
 
