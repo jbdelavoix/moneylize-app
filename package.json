@@ -1,10 +1,10 @@
 {
   "name": "moneylize-app",
   "productName": "Moneylize",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A desktop application for Moneylize",
-  "author": "jbaptistetrb <jbaptistetrb@users.noreply.github.com> (https://github.com/jbaptistetrb)",
-  "homepage": "https://github.com/jbaptistetrb/moneylize-app",
+  "author": "jbdelavoix <jbdelavoix@users.noreply.github.com> (https://github.com/jbdelavoix)",
+  "homepage": "https://github.com/jbdelavoix/moneylize-app",
   "license": "MIT",
   "main": "src/app.js",
   "scripts": {
@@ -21,7 +21,7 @@
       "**/*",
       "build/**/*"
     ],
-    "appId": "jbaptistetrb.moneylize-app",
+    "appId": "jbdelavoix.moneylize-app",
     "mac": {
       "category": "public.app-category.productivity",
       "darkModeSupport": false
