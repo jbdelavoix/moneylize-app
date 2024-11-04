@@ -1,7 +1,7 @@
 {
   "name": "moneylize-app",
   "productName": "Moneylize",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A desktop application for Moneylize",
   "author": "jbdelavoix <jbdelavoix@users.noreply.github.com> (https://github.com/jbdelavoix)",
   "homepage": "https://github.com/jbdelavoix/moneylize-app",
@@ -12,8 +12,8 @@
     "dist": "electron-builder --macos --linux --windows --publish never"
   },
   "devDependencies": {
-    "electron": "*",
-    "electron-builder": "*"
+    "electron": "^33.0.2",
+    "electron-builder": "^25.1.8"
   },
   "build": {
     "artifactName": "${name}-${version}-${os}.${ext}",
@@ -23,6 +23,10 @@
     ],
     "appId": "jbdelavoix.moneylize-app",
     "mac": {
+      "target": {
+        "target": "default",
+        "arch": "universal"
+      },
       "category": "public.app-category.productivity",
       "darkModeSupport": false
     },
@@ -32,7 +36,6 @@
         "deb",
         "rpm",
         "pacman",
-        "snap",
         "tar.bz2"
       ],
       "category": "Network;Office"
